@@ -7,7 +7,11 @@ def detect_traffic_anomalies(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame
     if df.empty or len(df) < 10:
         return pd.DataFrame()
 
-    df_slot = df.set_index("datetime").resample(freq).size().reset_index(name="count")
+    res = df.set_index("datetime").resample(freq).size()
+    df_slot = pd.DataFrame({
+        "datetime": res.index,
+        "count": res.values
+    })
     if len(df_slot) < 3:
         return pd.DataFrame()
 
@@ -67,7 +71,7 @@ def detect_suspicious_ips(df: pd.DataFrame, threshold_ratio: float = 0.15) -> pd
 def calculate_visitor_retention(df: pd.DataFrame) -> pd.DataFrame:
     """Phân nhóm khách truy cập theo lòng trung thành / tần suất tương tác."""
     if df.empty:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=["Phân khúc khách truy cập", "Số lượng IP"])
 
     ip_counts = df["ip"].value_counts()
     
@@ -81,8 +85,12 @@ def calculate_visitor_retention(df: pd.DataFrame) -> pd.DataFrame:
         else:
             return "4. Khách hàng nòng cốt (> 15 lượt)"
 
-    grouped = ip_counts.apply(group_freq).value_counts().reset_index()
-    grouped.columns = ["Phân khúc khách truy cập", "Số lượng IP"]
+    freq_series = ip_counts.apply(group_freq)
+    counts = freq_series.value_counts()
+    grouped = pd.DataFrame({
+        "Phân khúc khách truy cập": counts.index.tolist(),
+        "Số lượng IP": counts.values.tolist()
+    })
     grouped = grouped.sort_values(by="Phân khúc khách truy cập")
     return grouped
 
@@ -90,7 +98,7 @@ def calculate_visitor_retention(df: pd.DataFrame) -> pd.DataFrame:
 def analyze_ip_subnets(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """Phân tích dải mạng IP (Subnet /24) và tỷ lệ IPv4 vs IPv6."""
     if df.empty:
-        return pd.DataFrame(), {"ipv4": 0, "ipv6": 0}
+        return pd.DataFrame(columns=["Dải mạng (Subnet)", "Lượt truy cập"]), {"ipv4": 0, "ipv6": 0, "ipv4_pct": 0, "ipv6_pct": 0}
 
     def extract_subnet(ip):
         ip_str = str(ip).strip()
@@ -101,8 +109,11 @@ def analyze_ip_subnets(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
             return f"{parts[0]}.{parts[1]}.{parts[2]}.0/24"
         return "Khác"
 
-    subnets = df["ip"].apply(extract_subnet).value_counts().reset_index()
-    subnets.columns = ["Dải mạng (Subnet)", "Lượt truy cập"]
+    subnets = df["ip"].apply(extract_subnet).value_counts()
+    subnets_df = pd.DataFrame({
+        "Dải mạng (Subnet)": subnets.index.tolist(),
+        "Lượt truy cập": subnets.values.tolist()
+    })
     
     ipv6_count = sum(":" in str(ip) for ip in df["ip"])
     ipv4_count = len(df) - ipv6_count
@@ -113,4 +124,4 @@ def analyze_ip_subnets(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "ipv4_pct": (ipv4_count / len(df) * 100) if len(df) > 0 else 0,
         "ipv6_pct": (ipv6_count / len(df) * 100) if len(df) > 0 else 0
     }
-    return subnets, summary
+    return subnets_df, summary

@@ -133,8 +133,11 @@ def render_tab_id_detail(df_filtered, df_all, total_views, time_preset):
     with r2_c1:
         with st.container(border=True):
             st.markdown(f"<h5 class='no-select'>🌍 Phân Bố Quốc Gia Của `{target_id}`</h5>", unsafe_allow_html=True)
-            id_country_df = id_df["country_clean"].value_counts().reset_index()
-            id_country_df.columns = ["Quốc gia", "Lượt xem"]
+            c_cnt = id_df["country_clean"].value_counts()
+            id_country_df = pd.DataFrame({
+                "Quốc gia": c_cnt.index.tolist(),
+                "Lượt xem": c_cnt.values.tolist()
+            })
 
             fig_id_country = px.bar(
                 id_country_df,
@@ -153,8 +156,11 @@ def render_tab_id_detail(df_filtered, df_all, total_views, time_preset):
     with r2_c2:
         with st.container(border=True):
             st.markdown(f"<h5 class='no-select'>📱 Cơ Cấu Thiết Bị Của `{target_id}`</h5>", unsafe_allow_html=True)
-            id_dev_df = id_df["device_clean"].value_counts().reset_index()
-            id_dev_df.columns = ["Thiết bị", "Lượt xem"]
+            d_cnt = id_df["device_clean"].value_counts()
+            id_dev_df = pd.DataFrame({
+                "Thiết bị": d_cnt.index.tolist(),
+                "Lượt xem": d_cnt.values.tolist()
+            })
             
             fig_id_dev = px.pie(
                 id_dev_df,
@@ -176,8 +182,11 @@ def render_tab_id_detail(df_filtered, df_all, total_views, time_preset):
     with r2_c3:
         with st.container(border=True):
             st.markdown(f"<h5 class='no-select'>🌐 Top Địa Chỉ IP Của `{target_id}`</h5>", unsafe_allow_html=True)
-            id_ip_counts = id_df["ip"].value_counts().head(8).reset_index()
-            id_ip_counts.columns = ["Địa chỉ IP", "Lượt xem"]
+            ip_cnt = id_df["ip"].value_counts().head(8)
+            id_ip_counts = pd.DataFrame({
+                "Địa chỉ IP": ip_cnt.index.tolist(),
+                "Lượt xem": ip_cnt.values.tolist()
+            })
             
             fig_id_ip = px.bar(
                 id_ip_counts.sort_values(by="Lượt xem", ascending=True),

@@ -142,16 +142,16 @@ def render_tab_analytics(df_filtered, df_all):
                 col_bar_a, col_bar_b = st.columns(2)
                 with col_bar_a:
                     st.caption(f"Cơ cấu thiết bị của **{id_a}**")
-                    dev_a = df_a["device_clean"].value_counts().reset_index()
-                    dev_a.columns = ["Thiết bị", "Lượt"]
+                    dev_a_cnt = df_a["device_clean"].value_counts()
+                    dev_a = pd.DataFrame({"Thiết bị": dev_a_cnt.index.tolist(), "Lượt": dev_a_cnt.values.tolist()})
                     fig_a = px.bar(dev_a, x="Thiết bị", y="Lượt", color_discrete_sequence=["#0284c7"])
                     fig_a.update_layout(margin=dict(l=5, r=5, t=10, b=10), **plot_layout)
                     st.plotly_chart(fig_a, use_container_width=True)
 
                 with col_bar_b:
                     st.caption(f"Cơ cấu thiết bị của **{id_b}**")
-                    dev_b = df_b["device_clean"].value_counts().reset_index()
-                    dev_b.columns = ["Thiết bị", "Lượt"]
+                    dev_b_cnt = df_b["device_clean"].value_counts()
+                    dev_b = pd.DataFrame({"Thiết bị": dev_b_cnt.index.tolist(), "Lượt": dev_b_cnt.values.tolist()})
                     fig_b = px.bar(dev_b, x="Thiết bị", y="Lượt", color_discrete_sequence=["#818cf8"])
                     fig_b.update_layout(margin=dict(l=5, r=5, t=10, b=10), **plot_layout)
                     st.plotly_chart(fig_b, use_container_width=True)

@@ -41,8 +41,11 @@ def render_tab_overview(df_filtered):
     with c_left:
         with st.container(border=True):
             st.markdown("<h5 class='no-select'>🌍 Phân Bố Theo Quốc Gia (Top 8)</h5>", unsafe_allow_html=True)
-            country_df = df_filtered["country_clean"].value_counts().reset_index()
-            country_df.columns = ["Quốc gia", "Lượt xem"]
+            c_counts = df_filtered["country_clean"].value_counts()
+            country_df = pd.DataFrame({
+                "Quốc gia": c_counts.index.tolist(),
+                "Lượt xem": c_counts.values.tolist()
+            })
             
             fig_country = px.bar(
                 country_df.head(8),
@@ -61,8 +64,11 @@ def render_tab_overview(df_filtered):
     with c_right:
         with st.container(border=True):
             st.markdown("<h5 class='no-select'>📱 Cơ Cấu Loại Thiết Bị</h5>", unsafe_allow_html=True)
-            device_df = df_filtered["device_clean"].value_counts().reset_index()
-            device_df.columns = ["Thiết bị", "Lượt xem"]
+            d_counts = df_filtered["device_clean"].value_counts()
+            device_df = pd.DataFrame({
+                "Thiết bị": d_counts.index.tolist(),
+                "Lượt xem": d_counts.values.tolist()
+            })
             
             fig_device = px.pie(
                 device_df,

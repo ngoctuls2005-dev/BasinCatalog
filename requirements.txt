@@ -1,0 +1,6 @@
+streamlit
+python-dotenv
+pandas
+pyiceberg[pyarrow]
+boto3
+plotly

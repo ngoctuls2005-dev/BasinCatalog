@@ -1,6 +1,7 @@
 streamlit
 python-dotenv
 pandas
+numpy
 pyiceberg[pyarrow]
 boto3
 plotly
